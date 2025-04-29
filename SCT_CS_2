@@ -1,0 +1,52 @@
+from PIL import Image
+import os
+def encrypt_image(img_path, output_path, mode='add', key=50):
+    img = Image.open(img_path)
+    pixels = img.load()
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b = pixels[x, y]
+            if mode == 'add':
+                pixels[x, y] = ((r + key) % 256, (g + key) % 256, (b + key) % 256)
+            elif mode == 'swap':
+                pixels[x, y] = pixels[width - 1 - x, y]
+    img.save(output_path)
+    print(f"Encrypted image saved to {output_path}")
+def decrypt_image(img_path, output_path, mode='add', key=50):
+    img = Image.open(img_path)
+    pixels = img.load()
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b = pixels[x, y]
+            if mode == 'add':
+                pixels[x, y] = ((r - key) % 256, (g - key) % 256, (b - key) % 256)
+            elif mode == 'swap':
+                pixels[x, y] = pixels[width - 1 - x, y]
+    img.save(output_path)
+    print(f"Decrypted image saved to {output_path}")
+def main():
+    print("=== Simple Image Encryption Tool ===")
+    choice = input("Encrypt or Decrypt? (e/d): ").strip().lower()
+    img_path = input("Enter path to the image file: ").strip()
+    if not os.path.exists(img_path):
+        print("Image not found.")
+        return
+    mode = input("Choose mode - 'add' or 'swap': ").strip().lower()
+    key = 0
+    if mode == 'add':
+        try:
+            key = int(input("Enter key (integer to add/subtract): "))
+        except ValueError:
+            print("Key must be an integer.")
+            return
+    output_path = input("Enter output image filename (e.g., result.png): ").strip()
+    if choice == 'e':
+        encrypt_image(img_path, output_path, mode=mode, key=key)
+    elif choice == 'd':
+        decrypt_image(img_path, output_path, mode=mode, key=key)
+    else:
+        print("Invalid choice. Please enter 'e' or 'd'.")
+if __name__ == "__main__":
+    main()
